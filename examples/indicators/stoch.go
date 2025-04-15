@@ -7,14 +7,14 @@ import (
 // Stoch represents a Stochastic Oscillator indicator
 type Stoch struct {
 	*BaseIndicator
-	windowSize      int
-	smoothK         int
-	smoothD         int
-	highValues      []float64
-	lowValues       []float64
-	closeValues     []float64
-	kValues         []float64
-	dValues         []float64
+	windowSize  int
+	smoothK     int
+	smoothD     int
+	highValues  []float64
+	lowValues   []float64
+	closeValues []float64
+	kValues     []float64
+	dValues     []float64
 }
 
 // StochOutput represents the output of Stochastic Oscillator calculations
@@ -55,25 +55,25 @@ func (stoch *Stoch) AddHLCValue(high, low, close float64) {
 	stoch.highValues = append(stoch.highValues, high)
 	stoch.lowValues = append(stoch.lowValues, low)
 	stoch.closeValues = append(stoch.closeValues, close)
-	
+
 	// Keep only the windowSize values
 	if len(stoch.highValues) > stoch.windowSize {
 		stoch.highValues = stoch.highValues[1:]
 		stoch.lowValues = stoch.lowValues[1:]
 		stoch.closeValues = stoch.closeValues[1:]
 	}
-	
+
 	// If we have enough values, calculate %K
 	if len(stoch.closeValues) == stoch.windowSize {
 		// Find highest high and lowest low in the window
 		highestHigh := stoch.highValues[0]
 		lowestLow := stoch.lowValues[0]
-		
+
 		for i := 1; i < stoch.windowSize; i++ {
 			highestHigh = math.Max(highestHigh, stoch.highValues[i])
 			lowestLow = math.Min(lowestLow, stoch.lowValues[i])
 		}
-		
+
 		// Calculate raw %K
 		var kValue float64
 		if highestHigh == lowestLow {
@@ -81,10 +81,10 @@ func (stoch *Stoch) AddHLCValue(high, low, close float64) {
 		} else {
 			kValue = 100.0 * ((close - lowestLow) / (highestHigh - lowestLow))
 		}
-		
+
 		// Add K value for smoothing
 		stoch.kValues = append(stoch.kValues, kValue)
-		
+
 		// Apply smoothing to %K if required
 		if stoch.smoothK > 1 {
 			if len(stoch.kValues) >= stoch.smoothK {
@@ -93,7 +93,7 @@ func (stoch *Stoch) AddHLCValue(high, low, close float64) {
 					sum += stoch.kValues[i]
 				}
 				kValue = sum / float64(stoch.smoothK)
-				
+
 				// Keep only the needed K values
 				if len(stoch.kValues) > stoch.smoothK {
 					stoch.kValues = stoch.kValues[1:]
@@ -103,30 +103,25 @@ func (stoch *Stoch) AddHLCValue(high, low, close float64) {
 				return
 			}
 		}
-		
+
 		// Calculate %D (SMA of %K)
 		stoch.dValues = append(stoch.dValues, kValue)
-		
+
 		if len(stoch.dValues) >= stoch.smoothD {
 			var sum float64
 			for i := len(stoch.dValues) - stoch.smoothD; i < len(stoch.dValues); i++ {
 				sum += stoch.dValues[i]
 			}
 			dValue := sum / float64(stoch.smoothD)
-			
+
 			// Keep only the needed D values
 			if len(stoch.dValues) > stoch.smoothD {
 				stoch.dValues = stoch.dValues[1:]
 			}
-			
-			// Store the output
-			output := StochOutput{
-				K: kValue,
-				D: dValue,
-			}
-			
+
 			// Use K as the main indicator output
 			stoch.AddOutput(kValue)
+			stoch.AddOutput(dValue)
 		}
 	}
 }
@@ -141,20 +136,20 @@ func (stoch *Stoch) GetStochOutput() []StochOutput {
 	// Find the minimum length between K and D values
 	kLen := len(stoch.kValues)
 	dLen := len(stoch.dValues)
-	
+
 	// Get the minimum of the two
 	resultLen := kLen
 	if dLen < resultLen {
 		resultLen = dLen
 	}
-	
+
 	// Start from the appropriate positions
 	kStart := kLen - resultLen
 	dStart := dLen - resultLen
-	
+
 	// Create result slice
 	results := make([]StochOutput, resultLen)
-	
+
 	// Fill in the results
 	for i := 0; i < resultLen; i++ {
 		results[i] = StochOutput{
@@ -162,7 +157,7 @@ func (stoch *Stoch) GetStochOutput() []StochOutput {
 			D: stoch.dValues[dStart+i],
 		}
 	}
-	
+
 	return results
 }
 

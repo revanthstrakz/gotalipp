@@ -1,4 +1,4 @@
-package main
+package examples
 
 import (
 	"fmt"
@@ -312,7 +312,7 @@ func NewOHLCV(timestamp time.Time, open, high, low, close, volume float64) *OHLC
 }
 
 // Simple test function to show the indicators in action
-func main() {
+func Standalone_example() {
 	// Example 1: Simple Moving Average
 	fmt.Println("SMA Example:")
 	sma := NewSMA(3)

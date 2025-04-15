@@ -71,15 +71,11 @@ func (macd *MACD) AddValue(value float64) {
 			histogram := macdValue - signalValue
 			macd.histograms = append(macd.histograms, histogram)
 			
-			// Add complete MACD output
-			output := MACDOutput{
-				MACD:      macdValue,
-				Signal:    signalValue,
-				Histogram: histogram,
-			}
 			
 			// Store the output
 			macd.AddOutput(macdValue)
+			macd.AddOutput(signalValue)
+			macd.AddOutput(histogram)
 		}
 	}
 }

@@ -3,12 +3,12 @@ package indicators
 // MACD represents Moving Average Convergence Divergence indicator
 type MACD struct {
 	*BaseIndicator
-	fastEMA     *EMA
-	slowEMA     *EMA
-	signalEMA   *EMA
-	macdValues  []float64
-	signalLine  []float64
-	histograms  []float64
+	fastEMA    *EMA
+	slowEMA    *EMA
+	signalEMA  *EMA
+	macdValues []float64
+	signalLine []float64
+	histograms []float64
 }
 
 // MACDOutput represents the output of MACD calculations
@@ -26,11 +26,11 @@ func NewMACD(fastLength, slowLength, signalLength int) *MACD {
 	if fastLength <= 0 || slowLength <= 0 || signalLength <= 0 {
 		panic("All periods must be greater than 0")
 	}
-	
+
 	if fastLength >= slowLength {
 		panic("Fast length must be less than slow length")
 	}
-	
+
 	return &MACD{
 		BaseIndicator: NewBaseIndicator("MACD"),
 		fastEMA:       NewEMA(fastLength),
@@ -45,41 +45,37 @@ func NewMACD(fastLength, slowLength, signalLength int) *MACD {
 // AddValue adds a new value to the MACD calculation
 func (macd *MACD) AddValue(value float64) {
 	macd.input = append(macd.input, value)
-	
+
 	// Add value to both EMAs
 	macd.fastEMA.AddValue(value)
 	macd.slowEMA.AddValue(value)
-	
+
 	// If both EMAs have outputs, calculate MACD line
 	if macd.fastEMA.IsInitialized() && macd.slowEMA.IsInitialized() {
 		fastValue, _ := macd.fastEMA.GetLastValue()
 		slowValue, _ := macd.slowEMA.GetLastValue()
-		
+
 		// MACD line = fast EMA - slow EMA
 		macdValue := fastValue - slowValue
 		macd.macdValues = append(macd.macdValues, macdValue)
-		
+
 		// Feed the MACD value into the signal EMA
 		macd.signalEMA.AddValue(macdValue)
-		
+
 		// If the signal EMA has an output, calculate histogram
 		if macd.signalEMA.IsInitialized() {
 			signalValue, _ := macd.signalEMA.GetLastValue()
 			macd.signalLine = append(macd.signalLine, signalValue)
-			
+
 			// Histogram = MACD line - signal line
 			histogram := macdValue - signalValue
 			macd.histograms = append(macd.histograms, histogram)
-			
-			// Add complete MACD output
-			output := MACDOutput{
-				MACD:      macdValue,
-				Signal:    signalValue,
-				Histogram: histogram,
-			}
-			
+
 			// Store the output
 			macd.AddOutput(macdValue)
+			macd.AddOutput(signalValue)
+			macd.AddOutput(histogram)
+
 		}
 	}
 }
@@ -87,7 +83,7 @@ func (macd *MACD) AddValue(value float64) {
 // GetMACDOutput returns the complete MACD output (MACD, Signal, Histogram)
 func (macd *MACD) GetMACDOutput() []MACDOutput {
 	results := make([]MACDOutput, 0)
-	
+
 	// Get the minimum length of the three slices
 	minLength := len(macd.macdValues)
 	if len(macd.signalLine) < minLength {
@@ -96,7 +92,7 @@ func (macd *MACD) GetMACDOutput() []MACDOutput {
 	if len(macd.histograms) < minLength {
 		minLength = len(macd.histograms)
 	}
-	
+
 	// Build the output
 	for i := 0; i < minLength; i++ {
 		results = append(results, MACDOutput{
@@ -105,7 +101,7 @@ func (macd *MACD) GetMACDOutput() []MACDOutput {
 			Histogram: macd.histograms[i],
 		})
 	}
-	
+
 	return results
 }
 

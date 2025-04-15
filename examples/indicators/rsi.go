@@ -1,9 +1,5 @@
 package indicators
 
-import (
-	"math"
-)
-
 // RSI represents a Relative Strength Index indicator
 type RSI struct {
 	*BaseIndicator

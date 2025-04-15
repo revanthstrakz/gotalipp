@@ -119,14 +119,10 @@ func (stoch *Stoch) AddHLCValue(high, low, close float64) {
 				stoch.dValues = stoch.dValues[1:]
 			}
 			
-			// Store the output
-			output := StochOutput{
-				K: kValue,
-				D: dValue,
-			}
 			
 			// Use K as the main indicator output
 			stoch.AddOutput(kValue)
+			stoch.AddOutput(dValue)
 		}
 	}
 }

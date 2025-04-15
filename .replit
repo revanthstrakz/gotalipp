@@ -17,7 +17,7 @@ args = "GoTaLippExample"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "talipp_example"
+args = "github.com/revanthstrakz/gotalipp/talipp_example"
 
 [[workflows.workflow]]
 name = "GoTaLippExample"
@@ -34,7 +34,7 @@ task = "shell.exec"
 args = "cd . && go run examples/simple.go"
 
 [[workflows.workflow]]
-name = "talipp_example"
+name = "github.com/revanthstrakz/gotalipp/talipp_example"
 author = "agent"
 
 [workflows.workflow.metadata]

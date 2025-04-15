@@ -2,11 +2,11 @@
 package talipp
 
 import (
-        _ "talipp/indicators" // Import indicators
-        _ "talipp/ohlcv"      // Import OHLCV
+	_ "github.com/revanthstrakz/gotalipp/talipp/indicators" // Import indicators
+	_ "github.com/revanthstrakz/gotalipp/talipp/ohlcv"      // Import OHLCV
 )
 
 // Version returns the version of the talipp package
 func Version() string {
-        return "0.1.0"
+	return "0.1.0"
 }
