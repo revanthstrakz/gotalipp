@@ -1,0 +1,51 @@
+modules = ["go"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "GoTaLippExample"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "talipp_example"
+
+[[workflows.workflow]]
+name = "GoTaLippExample"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd . && go run examples/simple.go"
+
+[[workflows.workflow]]
+name = "talipp_example"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd /home/runner/talipp && go run examples/simple.go"
+
+[deployment]
+run = ["sh", "-c", "cd . && go run examples/simple.go"]
