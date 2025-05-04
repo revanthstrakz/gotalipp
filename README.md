@@ -13,4 +13,4 @@ TaLipp for Go is a technical analysis library that provides implementation of te
 ## Installation
 
 ```bash
-go get github.com/revanthstrakz/talipp
+go get github.com/revanthstrakz/gotalipp
